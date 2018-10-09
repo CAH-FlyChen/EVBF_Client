@@ -47,10 +47,11 @@ const permission = {
   },
   actions: {
     GenerateRoutes({ commit }, data) {
+      console.log(`GenerateRoutes:${JSON.stringify(data)}`)
       return new Promise(resolve => {
         const { roles } = data
         let accessedRouters
-        if (roles.includes('admin')) {
+        if (roles.includes('ADMIN')) {
           accessedRouters = asyncRouterMap
         } else {
           accessedRouters = filterAsyncRouter(asyncRouterMap, roles)

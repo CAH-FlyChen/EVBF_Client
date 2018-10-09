@@ -2,11 +2,12 @@ import request from '@/utils/request'
 
 export function loginByUsername(username, password) {
   const data = {
-    username,
-    password
+    'userNameOrEmailAddress': username,
+    'password': password
   }
+  console.log(data)
   return request({
-    url: '/login/login',
+    url: '/api/TokenAuth/Authenticate',
     method: 'post',
     data
   })
@@ -19,11 +20,11 @@ export function logout() {
   })
 }
 
-export function getUserInfo(token) {
+export function getUserInfo(id) {
   return request({
-    url: '/user/info',
+    url: '/api/services/app/User/Get',
     method: 'get',
-    params: { token }
+    params: { id }
   })
 }
 
