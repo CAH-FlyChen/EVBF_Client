@@ -108,8 +108,41 @@ export default new Router({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+const map = {
+  icon: () => import('@/views/svg-icons/index')
+}
+const serverRouter = [{
+  path: '/icon',
+  component: Layout,
+  children: [
+    {
+      path: 'index',
+      component: map['icon'],
+      name: 'Icons',
+      meta: { title: 'icons', icon: 'icon', noCache: true }
+    }
+  ]
+}]
 
-export const asyncRouterMap = [
+var asyncRouterMap = [
+  {
+    path: '/table',
+    component: Layout,
+    redirect: '/table/complex-table',
+    name: 'Table',
+    meta: {
+      title: 'Table',
+      icon: 'table'
+    },
+    children: [
+      {
+        path: 'complex-table',
+        component: () => import('@/views/table/evMenu'),
+        name: '菜单设置',
+        meta: { title: '菜单设置' }
+      }
+    ]
+  },
   {
     path: '/permission',
     component: Layout,
@@ -142,18 +175,18 @@ export const asyncRouterMap = [
     ]
   },
 
-  {
-    path: '/icon',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/svg-icons/index'),
-        name: 'Icons',
-        meta: { title: 'icons', icon: 'icon', noCache: true }
-      }
-    ]
-  },
+  // {
+  //   path: '/icon',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/svg-icons/index'),
+  //       name: 'Icons',
+  //       meta: { title: 'icons', icon: 'icon', noCache: true }
+  //     }
+  //   ]
+  // },
 
   /** When your routing table is too long, you can split it into small modules**/
   componentsRouter,
@@ -346,3 +379,8 @@ export const asyncRouterMap = [
 
   { path: '*', redirect: '/404', hidden: true }
 ]
+serverRouter.forEach((item, index) => {
+  asyncRouterMap.push(item)
+})
+
+export { asyncRouterMap }
