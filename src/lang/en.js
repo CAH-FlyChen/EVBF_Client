@@ -106,7 +106,7 @@ export default {
     dynamicTips2: 'Not fixed header, sorted by click order',
     dragTips1: 'The default order',
     dragTips2: 'The after dragging order',
-    title: 'Title',
+    title: '中文标题',
     importance: 'Imp',
     type: 'Type',
     remark: 'Remark',

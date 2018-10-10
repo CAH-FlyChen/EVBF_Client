@@ -47,6 +47,12 @@ const tableRouter = {
       component: () => import('@/views/table/complexTable'),
       name: 'ComplexTable',
       meta: { title: 'complexTable' }
+    },
+    {
+      path: 'complex-table',
+      component: () => import('@/views/table/evMenu'),
+      name: '菜单设置',
+      meta: { title: '菜单设置' }
     }
   ]
 }
