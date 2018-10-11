@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+export function getStruct() {
+  return request({
+    url: '/api/services/app/Menu/GetViewStruct',
+    method: 'get'
+  })
+}
+
 export function fetchList(query) {
   return request({
     url: '/api/services/app/menu/getall',

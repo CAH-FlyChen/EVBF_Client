@@ -25,7 +25,14 @@
       fit
       highlight-current-row
       style="width: 100%;">
-      <el-table-column :label="$t('table.id')" align="center" width="65">
+      <el-table-column v-for="field in table.fields" :key="field.name" :label="field.name" min-width="50px">
+        <template slot-scope="scope">
+          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.title }}</span>
+          <el-tag>{{ scope.row.type | typeFilter }}</el-tag>
+        </template>
+      </el-table-column>
+
+      <!-- <el-table-column :label="$t('table.id')" align="center" width="65">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
@@ -66,7 +73,7 @@
         <template slot-scope="scope">
           <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
@@ -129,7 +136,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createMenu, updateMenu } from '@/api/sidemenu'
+import { fetchList, fetchPv, createMenu, updateMenu, getStruct } from '@/api/sidemenu'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 
@@ -205,22 +212,26 @@ export default {
         timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
-      downloadLoading: false
+      downloadLoading: false,
+      table: {
+      }
     }
   },
   created() {
+    this.drawTable()
     this.getList()
   },
   methods: {
+    drawTable() {
+      getStruct().then(response => {
+        this.table = response.data.result
+      })
+    },
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.result.items
         this.total = response.data.result.totalCount
-        // Just to simulate the time of the request
-        // setTimeout(() => {
-        //   this.listLoading = false
-        // }, 1.5 * 1000)
         this.listLoading = false
       })
     },
