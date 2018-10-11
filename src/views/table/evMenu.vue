@@ -25,7 +25,7 @@
       fit
       highlight-current-row
       style="width: 100%;">
-      <el-table-column v-for="field in table.fields" :key="field.name" :label="field.name" min-width="50px">
+      <el-table-column v-for="field in table.listView.fields" :key="field.name" :label="field.name" min-width="50px">
         <template slot-scope="scope">
           <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.title }}</span>
           <el-tag>{{ scope.row.type | typeFilter }}</el-tag>
@@ -93,7 +93,12 @@
     <!-- 创建对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item :label="$t('table.type')" prop="type">
+        <el-form-item v-for="field in table.editorView.fields" :key="field.name" :label="field.name" :prop="field.name">
+          <el-input v-if="field.typeName == 'String'" v-model="temp[field.name]" />
+          <el-input v-if="field.typeName == 'Int32'" v-model="temp[field.name]" />
+          <el-switch v-if="field.typeName == 'Boolean'" v-model="temp[field.name]" />
+        </el-form-item>
+        <!-- <el-form-item :label="$t('table.type')" prop="type">
           <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
             <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
           </el-select>
@@ -114,7 +119,7 @@
         </el-form-item>
         <el-form-item :label="$t('table.remark')">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" v-model="temp.remark" type="textarea" placeholder="Please input"/>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
@@ -136,7 +141,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createMenu, updateMenu, getStruct } from '@/api/sidemenu'
+import { fetchList, fetchPv, createMenu, updateMenu, getListStruct, getEditorStruct } from '@/api/sidemenu'
 import waves from '@/directive/waves' // 水波纹指令
 import { parseTime } from '@/utils'
 
@@ -191,13 +196,6 @@ export default {
       statusOptions: ['published', 'draft', 'deleted'],
       showReviewer: false,
       temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -209,11 +207,13 @@ export default {
       pvData: [],
       rules: {
         type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }]
+        // Name: [{ required: true, message: 'name is required', trigger: 'blur' }]
       },
       downloadLoading: false,
       table: {
+        listView: null,
+        editorView: null
       }
     }
   },
@@ -223,8 +223,17 @@ export default {
   },
   methods: {
     drawTable() {
-      getStruct().then(response => {
-        this.table = response.data.result
+      getListStruct().then(response => {
+        this.table.listView = response.data.result
+      })
+      getEditorStruct().then(response => {
+        this.table.editorView = response.data.result
+        response.data.result.fields.forEach((item, index) => {
+          if (item.required) {
+            console.log(item.requiredValidateMsg)
+            this.rules[item.name] = [{ required: true, message: item.requiredValidateMsg, trigger: 'blur' }]
+          }
+        })
       })
     },
     getList() {
@@ -256,13 +265,13 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
+        // id: undefined,
+        // importance: 1,
+        // remark: '',
+        // timestamp: new Date(),
+        // title: '',
+        // status: 'published',
+        // type: ''
       }
     },
     handleCreate() {
@@ -274,10 +283,11 @@ export default {
       })
     },
     createData() {
+      console.log(JSON.stringify(this.temp))
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
+          // this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          // this.temp.author = 'vue-element-admin'
           createMenu(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false

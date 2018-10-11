@@ -1,9 +1,18 @@
 import request from '@/utils/request'
 
-export function getStruct() {
+export function getListStruct() {
   return request({
     url: '/api/services/app/Menu/GetViewStruct',
-    method: 'get'
+    method: 'get',
+    params: { 'vType': 0 }
+  })
+}
+
+export function getEditorStruct() {
+  return request({
+    url: '/api/services/app/Menu/GetViewStruct',
+    method: 'get',
+    params: { 'vType': 1 }
   })
 }
 
