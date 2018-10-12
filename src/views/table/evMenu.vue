@@ -27,8 +27,8 @@
       style="width: 100%;">
       <el-table-column v-for="field in table.listView.fields" :key="field.name" :label="field.name" min-width="50px">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.title }}</span>
-          <el-tag>{{ scope.row.type | typeFilter }}</el-tag>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row[field.name.substr(0,1).toLowerCase()+field.name.substr(1)] }}</span>
+          <!-- <el-tag>{{ scope.row.type | typeFilter }}</el-tag> -->
         </template>
       </el-table-column>
 
