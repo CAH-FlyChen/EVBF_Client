@@ -4,7 +4,7 @@ import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'// progress bar style
 import { getToken } from '@/utils/auth' // getToken from cookie
-
+import Oidc from 'oidc-client'
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
 // permission judge function
@@ -14,10 +14,11 @@ function hasPermission(roles, permissionRoles) {
   return roles.some(role => permissionRoles.indexOf(role) >= 0)
 }
 
-const whiteList = ['/login', '/auth-redirect']// no redirect whitelist
+const whiteList = ['/login', '/auth-redirect', '/signin-oidc', '/id_token', '/test']// no redirect whitelist
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
+  debugger
   if (getToken()) { // determine if there has token
     /* has token*/
     if (to.path === '/login') {
@@ -49,11 +50,24 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     /* has no token*/
+    debugger
     if (whiteList.indexOf(to.path) !== -1) { // 在免登录白名单，直接进入
       next()
     } else {
-      next(`/login?redirect=${to.path}`) // 否则全部重定向到登录页
-      NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
+      debugger
+      var config = {
+        authority: 'http://localhost:64999',
+        client_id: 'spa-client',
+        redirect_uri: 'http://localhost:9527/#signin-oidc?',
+        response_type: 'id_token token',
+        scope: 'openid',
+        post_logout_redirect_uri: 'http://localhost:9527/'
+      }
+      var mgr = new Oidc.UserManager(config)
+      mgr.signinRedirect()
+
+    //   // next(`/login?redirect=${to.path}`) // 否则全部重定向到登录页
+    //   // NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
     }
   }
 })

@@ -1,20 +1,71 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input :placeholder="$t('table.title')" v-model="listQuery.title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.importance" :placeholder="$t('table.importance')" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-input
+        :placeholder="$t('table.title')"
+        v-model="listQuery.title"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter" />
+      <el-select
+        v-model="listQuery.importance"
+        :placeholder="$t('table.importance')"
+        clearable
+        style="width: 90px"
+        class="filter-item">
+        <el-option
+          v-for="item in importanceOptions"
+          :key="item"
+          :label="item"
+          :value="item" />
       </el-select>
-      <el-select v-model="listQuery.type" :placeholder="$t('table.type')" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key"/>
+      <el-select
+        v-model="listQuery.type"
+        :placeholder="$t('table.type')"
+        clearable
+        class="filter-item"
+        style="width: 130px">
+        <el-option
+          v-for="item in calendarTypeOptions"
+          :key="item.key"
+          :label="item.display_name+'('+item.key+')'"
+          :value="item.key" />
       </el-select>
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key"/>
+      <el-select
+        v-model="listQuery.sort"
+        style="width: 140px"
+        class="filter-item"
+        @change="handleFilter">
+        <el-option
+          v-for="item in sortOptions"
+          :key="item.key"
+          :label="item.label"
+          :value="item.key" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">{{ $t('table.search') }}</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">{{ $t('table.add') }}</el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">{{ $t('table.export') }}</el-button>
-      <el-checkbox v-model="showReviewer" class="filter-item" style="margin-left:15px;" @change="tableKey=tableKey+1">{{ $t('table.reviewer') }}</el-checkbox>
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter">{{ $t('table.search') }}</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate">{{ $t('table.add') }}</el-button>
+      <el-button
+        v-waves
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload">{{ $t('table.export') }}</el-button>
+      <el-checkbox
+        v-model="showReviewer"
+        class="filter-item"
+        style="margin-left:15px;"
+        @change="tableKey=tableKey+1">{{ $t('table.reviewer') }}</el-checkbox>
     </div>
 
     <el-table
@@ -25,10 +76,16 @@
       fit
       highlight-current-row
       style="width: 100%;">
-      <el-table-column v-for="field in table.listView.fields" :key="field.name" :label="field.name" min-width="50px">
+      <el-table-column
+        v-for="field in table.listView.fields"
+        :key="field.name"
+        :label="field.name"
+        min-width="50px">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row[field.name.substr(0,1).toLowerCase()+field.name.substr(1)] }}</span>
-          <!-- <el-tag>{{ scope.row.type | typeFilter }}</el-tag> -->
+          <span
+            class="link-type"
+            @click="handleUpdate(scope.row)">{{ scope.row[getCamelStr(field.name)] }}</span>
+            <!-- <el-tag>{{ scope.row.type | typeFilter }}</el-tag> -->
         </template>
       </el-table-column>
 
@@ -74,29 +131,74 @@
           <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
         </template>
       </el-table-column> -->
-      <el-table-column :label="$t('table.actions')" align="center" width="230" class-name="small-padding fixed-width">
+      <el-table-column
+        :label="$t('table.actions')"
+        align="center"
+        width="230"
+        class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
-          <el-button v-if="scope.row.status!='published'" size="mini" type="success" @click="handleModifyStatus(scope.row,'published')">{{ $t('table.publish') }}
+          <el-button
+            type="primary"
+            size="mini"
+            @click="handleUpdate(scope.row)">{{ $t('table.edit') }}</el-button>
+          <el-button
+            v-if="scope.row.status!='published'"
+            size="mini"
+            type="success"
+            @click="handleModifyStatus(scope.row,'published')">{{ $t('table.publish') }}
           </el-button>
-          <el-button v-if="scope.row.status!='draft'" size="mini" @click="handleModifyStatus(scope.row,'draft')">{{ $t('table.draft') }}
+          <el-button
+            v-if="scope.row.status!='draft'"
+            size="mini"
+            @click="handleModifyStatus(scope.row,'draft')">{{ $t('table.draft') }}
           </el-button>
-          <el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{ $t('table.delete') }}
+          <el-button
+            v-if="scope.row.status!='deleted'"
+            size="mini"
+            type="danger"
+            @click="handleDelete(scope.row,'deleted')">{{ $t('table.delete') }}
           </el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination v-show="total>0" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" :total="total" background layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
+      <el-pagination
+        v-show="total>0"
+        :current-page="listQuery.page"
+        :page-sizes="[10,20,30, 50]"
+        :page-size="listQuery.limit"
+        :total="total"
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange" />
     </div>
     <!-- 创建对话框 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item v-for="field in table.editorView.fields" :key="field.name" :label="field.name" :prop="field.name">
-          <el-input v-if="field.typeName == 'String'" v-model="temp[field.name]" />
-          <el-input v-if="field.typeName == 'Int32'" v-model="temp[field.name]" />
-          <el-switch v-if="field.typeName == 'Boolean'" v-model="temp[field.name]" />
+    <el-dialog
+      :title="textMap[dialogStatus]"
+      :visible.sync="dialogFormVisible">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="temp"
+        label-position="left"
+        label-width="70px"
+        style="width: 400px; margin-left:50px;">
+        <el-form-item
+          v-for="field in table.editorView.fields"
+          :key="field.name"
+          :label="field.name"
+          :prop="field.name">
+          <el-input
+            v-if="field.typeName == 'String'"
+            v-model="temp[getCamelStr(field.name)]" />
+          <el-input
+            v-if="field.typeName == 'Int32'"
+            v-model="temp[getCamelStr(field.name)]" />
+          <el-switch
+            v-if="field.typeName == 'Boolean'"
+            v-model="temp[getCamelStr(field.name)]" />
         </el-form-item>
         <!-- <el-form-item :label="$t('table.type')" prop="type">
           <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
@@ -121,19 +223,38 @@
           <el-input :autosize="{ minRows: 2, maxRows: 4}" v-model="temp.remark" type="textarea" placeholder="Please input"/>
         </el-form-item> -->
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <div
+        slot="footer"
+        class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{ $t('table.cancel') }}</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">{{ $t('table.confirm') }}</el-button>
+        <el-button
+          type="primary"
+          @click="dialogStatus==='create'?createData():updateData()">{{ $t('table.confirm') }}</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"/>
-        <el-table-column prop="pv" label="Pv"/>
+    <el-dialog
+      :visible.sync="dialogPvVisible"
+      title="Reading statistics">
+      <el-table
+        :data="pvData"
+        border
+        fit
+        highlight-current-row
+        style="width: 100%">
+        <el-table-column
+          prop="key"
+          label="Channel" />
+        <el-table-column
+          prop="pv"
+          label="Pv" />
       </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{ $t('table.confirm') }}</el-button>
+      <span
+        slot="footer"
+        class="dialog-footer">
+        <el-button
+          type="primary"
+          @click="dialogPvVisible = false">{{ $t('table.confirm') }}</el-button>
       </span>
     </el-dialog>
 
@@ -141,9 +262,9 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createMenu, updateMenu, getListStruct, getEditorStruct } from '@/api/sidemenu'
+import { fetchList, fetchPv, createMenu, updateMenu, getListStruct, getEditorStruct, deleteMenu } from '@/api/sidemenu'
 import waves from '@/directive/waves' // 水波纹指令
-import { parseTime } from '@/utils'
+import { parseTime, getCamelStr } from '@/utils'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -222,6 +343,9 @@ export default {
     this.getList()
   },
   methods: {
+    getCamelStr(str) {
+      return getCamelStr(str)
+    },
     drawTable() {
       getListStruct().then(response => {
         this.table.listView = response.data.result
@@ -303,6 +427,7 @@ export default {
     },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
+      console.log(JSON.stringify(this.temp))
       this.temp.timestamp = new Date(this.temp.timestamp)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
@@ -335,14 +460,16 @@ export default {
       })
     },
     handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+      deleteMenu(row).then(() => {
+        this.$notify({
+          title: '成功',
+          message: '删除成功',
+          type: 'success',
+          duration: 2000
+        })
+        const index = this.list.indexOf(row)
+        this.list.splice(index, 1)
       })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {

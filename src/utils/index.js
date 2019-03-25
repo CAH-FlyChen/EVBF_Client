@@ -296,3 +296,7 @@ export function deepClone(source) {
 export function uniqueArr(arr) {
   return Array.from(new Set(arr))
 }
+
+export function getCamelStr(str) {
+  return str.substr(0, 1).toLowerCase() + str.substr(1)
+}

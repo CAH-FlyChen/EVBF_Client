@@ -43,6 +43,16 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/id_token',
+    component: () => import('@/views/login/sign-oidc'),
+    hidden: true
+  },
+  {
+    path: '/signin-oidc',
+    component: () => import('@/views/login/sign-oidc'),
+    hidden: true
+  },
+  {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true

@@ -4,7 +4,7 @@ export function getListStruct() {
   return request({
     url: '/api/services/app/Menu/GetViewStruct',
     method: 'get',
-    params: { 'vType': 0 }
+    params: { vType: 0 }
   })
 }
 
@@ -12,7 +12,7 @@ export function getEditorStruct() {
   return request({
     url: '/api/services/app/Menu/GetViewStruct',
     method: 'get',
-    params: { 'vType': 1 }
+    params: { vType: 1 }
   })
 }
 
@@ -45,5 +45,13 @@ export function updateMenu(data) {
     url: '/api/serivces/app/menu/update',
     method: 'post',
     data
+  })
+}
+
+export function deleteMenu(data) {
+  return request({
+    url: '/api/service/app/menu/delete',
+    method: 'delete',
+    params: { 'id': data.id }
   })
 }
